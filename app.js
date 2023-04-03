@@ -3,16 +3,14 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 mongoose.set('strictQuery', true);
 
-// const placesRoutes = require("./routes/places-routes");
-// const utilisateursRoutes = require("./routes/utilisateurs-routes");
+const professeursRoutes = require("./routes/professeurs-routes");
 const HttpErreur = require("./models/http-erreur");
 
 const app = express();
 
 app.use(bodyParser.json());
 
-// app.use("/api/places", placesRoutes);
-// app.use("/api/utilisateurs", utilisateursRoutes);
+app.use("/api/professeurs", professeursRoutes);
 
 app.use((requete, reponse, next) => {
   return next(new HttpErreur("Route non trouvée", 404));
@@ -37,5 +35,3 @@ mongoose
 .catch(erreur => {
     console.log(erreur);
 });
-
-//app.listen(5000);
