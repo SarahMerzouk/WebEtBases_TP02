@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const coursSchema = new Schema({
     titre:{type: String, required: true},
-    professeur:{type:string, required: true},
+    professeur:{type:string, required: true, ref:"Professeur"},
     etudiants: [{type: mongoose.Types.ObjectId, required: true, ref:"Etudiant"}] // tableau
 });
 
