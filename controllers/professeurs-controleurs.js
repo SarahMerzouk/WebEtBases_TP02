@@ -9,31 +9,36 @@ const Professeur = require("../models/professeur");
 // me permet d'ajouter un professeur dans ma liste de profs s'il n'existe pas déjà
 const ajouterProfesseur = async (requete, reponse, next) => {
     const {identifiant, nom, prenom} = requete.body;
-    const nouveauProfesseur = new Professeur({
+
+    // vérifier si le prof existe déjà
+    let unProfExiste;
+
+    try {
+        unProfExiste = await Professeur.findOne({identifiant: identifiant});
+    } catch {
+        return next(new HttpErreur("Échec de vérification.", 500));
+    }
+
+    // si le prof existe, on affiche un message d'erreur.
+    if (unProfExiste) {
+        return next(new HttpErreur("Le professeur existe déjà!", 422));
+    }
+
+    // s'il n'existe pas, on le crée et on l'ajoute
+    let nouveauProfesseur = new Professeur({
         identifiant,
         nom, 
         prenom,
         cours: []
     });
 
-    // vérifier que le professeur existe, afficher un message d'erruer.
-    let unProf;
-
     try {
-        unProf = await Professeur.findById(identifiant);
-    } catch {
-        return next(new HttpErreur("Le professeur existe déjà!", 500));
+        await nouveauProfesseur.save();
+    } catch (err) {
+        return next(new HttpErreur("Erreur lors de l'ajout du professeur.", 422));
     }
 
-    // s'il n'existe pas, on l'ajoute à la liste
-    if (!unProf) {
-        try {
-            await nouveauProfesseur.save();
-        } catch(err) {
-            return next(new HttpErreur("Ajout du professeur échoué.",500));
-        }
-    }
-
-    reponse.status(201).json({professeur: nouveauProfesseur});
+    reponse.status(201).json({professeur: nouveauProfesseur.toObject({getter : true}) });
 };
-  
+
+exports.ajouterProfesseur = ajouterProfesseur;
