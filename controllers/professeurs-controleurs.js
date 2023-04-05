@@ -6,6 +6,26 @@ const HttpErreur = require("../models/http-erreur");
 
 const Professeur = require("../models/professeur");
 
+// ça me permet d'accéder à un professeur selon le id.
+const getProfesseurById = async(requete, reponse, next) => {
+    let professeurId = requete.params.professeurId;
+    let unProf;
+
+    // vérifier si le prof existe
+    try {
+        unProf = await Professeur.findById(professeurId);
+    } catch (err) {
+        return next(new HttpErreur("Erreur lorss la récupération du professeur.",500));
+    }
+
+    // s'il n'existe pas, j'affiche un message d'erreur.
+    if (!unProf) {
+        return next(new HttpErreur("Aucun professeur trouvée pour l'id fourni",404));
+    }
+
+    reponse.json({professeur: unProf.toObject({getters: true}) });
+};
+
 // me permet d'ajouter un professeur dans ma liste de profs s'il n'existe pas déjà
 const ajouterProfesseur = async (requete, reponse, next) => {
     const {identifiant, nom, prenom} = requete.body;
@@ -42,3 +62,4 @@ const ajouterProfesseur = async (requete, reponse, next) => {
 };
 
 exports.ajouterProfesseur = ajouterProfesseur;
+exports.getProfesseurById = getProfesseurById;
