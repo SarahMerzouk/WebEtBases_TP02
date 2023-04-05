@@ -26,7 +26,7 @@ const getProfesseurById = async(requete, reponse, next) => {
 
 // me permet d'ajouter un professeur dans ma liste de profs s'il n'existe pas déjà
 const ajouterProfesseur = async (requete, reponse, next) => {
-    const {identifiant, nom, prenom, dateEmbauche} = requete.body;
+    const {identifiant, nomEtPrenom, dateEmbauche} = requete.body;
     let unProfExiste;
 
     try {
@@ -41,8 +41,7 @@ const ajouterProfesseur = async (requete, reponse, next) => {
 
     let nouveauProfesseur = new Professeur({
         identifiant,
-        nom, 
-        prenom,
+        nomEtPrenom,
         dateEmbauche,
         image: "../images/random.png",
         cours: []
@@ -59,7 +58,7 @@ const ajouterProfesseur = async (requete, reponse, next) => {
 
 // permet de mettre à jour les informations du professeur.
 const updateProfesseur = async (requete, reponse, next) => {
-    const {nom, prenom, dateEmbauche, image} = requete.body;
+    const {nomEtPrenom, dateEmbauche, image} = requete.body;
     const professeurId = requete.params.professeurId;
     let unProf;
 
@@ -73,8 +72,7 @@ const updateProfesseur = async (requete, reponse, next) => {
         return next(new HttpErreur("id du professeur non trouvé!", 404));
     }
 
-    unProf.nom = nom;
-    unProf.prenom = prenom;
+    unProf.nomEtPrenom = nomEtPrenom;
     unProf.dateEmbauche = dateEmbauche;
     unProf.image = image;
 
