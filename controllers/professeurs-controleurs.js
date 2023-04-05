@@ -11,14 +11,12 @@ const getProfesseurById = async(requete, reponse, next) => {
     let professeurId = requete.params.professeurId;
     let unProf;
 
-    // vérifier si le prof existe
     try {
         unProf = await Professeur.findById(professeurId);
     } catch (err) {
         return next(new HttpErreur("Erreur lorss la récupération du professeur.",500));
     }
 
-    // s'il n'existe pas, j'affiche un message d'erreur.
     if (!unProf) {
         return next(new HttpErreur("Aucun professeur trouvée pour l'id fourni",404));
     }
@@ -29,8 +27,6 @@ const getProfesseurById = async(requete, reponse, next) => {
 // me permet d'ajouter un professeur dans ma liste de profs s'il n'existe pas déjà
 const ajouterProfesseur = async (requete, reponse, next) => {
     const {identifiant, nom, prenom} = requete.body;
-
-    // vérifier si le prof existe déjà
     let unProfExiste;
 
     try {
@@ -39,12 +35,10 @@ const ajouterProfesseur = async (requete, reponse, next) => {
         return next(new HttpErreur("Échec de vérification.", 500));
     }
 
-    // si le prof existe, on affiche un message d'erreur.
     if (unProfExiste) {
         return next(new HttpErreur("Le professeur existe déjà!", 422));
     }
 
-    // s'il n'existe pas, on le crée et on l'ajoute
     let nouveauProfesseur = new Professeur({
         identifiant,
         nom, 
@@ -61,5 +55,31 @@ const ajouterProfesseur = async (requete, reponse, next) => {
     reponse.status(201).json({professeur: nouveauProfesseur.toObject({getter : true}) });
 };
 
+// permet de mettre à jour les informations du professeur.
+const updateProfesseur = async (requete, reponse, next) => {
+    const {nom, prenom} = requete.body;
+    const professeurId = requete.params.professeurId;
+    let unProf;
+
+    try {
+        unProf = await Professeur.findById(professeurId);
+    } catch(err) {
+        return next(new HttpErreur("Échec lors de la récupération du professeur.",500));
+    }
+
+    if (!unProf) {
+        return next(new HttpErreur("id du professeur non trouvé!", 404));
+    }
+
+    unProf.nom = nom;
+    unProf.prenom = prenom;
+    await unProf.save();
+  
+    reponse.status(200).json({ professeur: unProf.toObject({ getters: true }) });
+  };
+  
+  
+
 exports.ajouterProfesseur = ajouterProfesseur;
 exports.getProfesseurById = getProfesseurById;
+exports.updateProfesseur = updateProfesseur;

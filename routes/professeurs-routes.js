@@ -7,4 +7,6 @@ router.get("/:professeurId", controleursProfesseur.getProfesseurById);
 
 router.post('/', controleursProfesseur.ajouterProfesseur);
 
+router.patch("/:professeurId", controleursProfesseur.updateProfesseur);
+
 module.exports = router;
