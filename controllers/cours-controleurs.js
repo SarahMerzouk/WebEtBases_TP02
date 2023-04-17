@@ -7,6 +7,23 @@ const HttpErreur = require("../models/http-erreur");
 const Cours = require("../models/cours");
 const Professeur = require("../models/professeur");
 
+const getCoursById = async (requete, reponse, next) => {
+  let coursId = requete.params.coursId;
+  let unCours;
+
+  try {
+      unCours = await Cours.findById(coursId);
+  } catch (err) {
+      return next(new HttpErreur("Erreur lorss la récupération du cours.",500));
+  }
+
+  if (!unCours) {
+      return next(new HttpErreur("Aucun cours trouvée pour l'id fourni",404));
+  }
+
+  reponse.json({professeur: unCours.toObject({getters: true}) });
+};
+
 // me permet d'ajouter un cours dans ma liste et un professeur doit lui être assigné
 const ajouterCours = async (requete, reponse, next) => {
   const { titre, professeur, discipline, dateDebut, dateFin, session } = requete.body;
@@ -60,3 +77,4 @@ const ajouterCours = async (requete, reponse, next) => {
 };
 
 exports.ajouterCours = ajouterCours;
+exports.getCoursById = getCoursById;
