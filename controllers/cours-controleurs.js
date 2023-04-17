@@ -47,14 +47,10 @@ const ajouterCours = async (requete, reponse, next) => {
   });
 
   try {
-    const sess = await mongoose.startSession();
-    sess.startTransaction();
-
-    await nouveauCours.save({ session: sess });
+  
+    await nouveauCours.save();
     unProf.cours.push(nouveauCours);
-    await unProf.save({ session: sess });
-
-    await sess.commitTransaction();
+    await unProf.save();
 
   } catch (err) {
     return next(new HttpErreur("Échec lors de l'ajout du cours.",404));
