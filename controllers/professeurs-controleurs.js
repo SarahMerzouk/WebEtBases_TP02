@@ -6,7 +6,6 @@ const HttpErreur = require("../models/http-erreur");
 
 const Professeur = require("../models/professeur");
 
-// ça me permet d'accéder à un professeur selon le id.
 const getProfesseurById = async(requete, reponse, next) => {
     let professeurId = requete.params.professeurId;
     let unProf;
@@ -24,7 +23,6 @@ const getProfesseurById = async(requete, reponse, next) => {
     reponse.json({professeur: unProf.toObject({getters: true}) });
 };
 
-// me permet d'ajouter un professeur dans ma liste de profs s'il n'existe pas déjà
 const ajouterProfesseur = async (requete, reponse, next) => {
     const {identifiant, nomEtPrenom, dateEmbauche} = requete.body;
     let unProfExiste;
@@ -56,7 +54,6 @@ const ajouterProfesseur = async (requete, reponse, next) => {
     reponse.status(201).json({professeur: nouveauProfesseur.toObject({getter : true}) });
 };
 
-// permet de mettre à jour les informations du professeur.
 const updateProfesseur = async (requete, reponse, next) => {
     const {nomEtPrenom, dateEmbauche, image} = requete.body;
     const professeurId = requete.params.professeurId;

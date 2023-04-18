@@ -24,7 +24,6 @@ const getCoursById = async (requete, reponse, next) => {
   reponse.json({ professeur: unCours.toObject({ getters: true }) });
 };
 
-// me permet d'ajouter un cours dans ma liste et un professeur doit lui être assigné
 const ajouterCours = async (requete, reponse, next) => {
   const { titre, professeur, discipline, dateDebut, dateFin, session } =
     requete.body;
@@ -76,7 +75,7 @@ const ajouterCours = async (requete, reponse, next) => {
 };
 
 const updateCours = async (requete, reponse, next) => {
-  const {titre,professeur,discipline,nbMaxEtudiants,dateDebut,dateFin,session,etudiants,} = requete.body;
+  const {titre,discipline,nbMaxEtudiants,dateDebut,dateFin,session} = requete.body;
   const coursId = requete.params.coursId;
   let unCours;
 
@@ -93,13 +92,11 @@ const updateCours = async (requete, reponse, next) => {
   }
 
   unCours.titre = titre;
-  unCours.professeur = professeur;
   unCours.discipline = discipline;
   unCours.nbMaxEtudiants = nbMaxEtudiants;
   unCours.dateDebut = dateDebut;
   unCours.dateFin = dateFin;
   unCours.session = session;
-  unCours.etudiants = etudiants;
 
   await unCours.save();
 
