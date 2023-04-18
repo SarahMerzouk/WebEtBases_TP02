@@ -9,4 +9,6 @@ router.post('/', controleursEtudiant.ajouterEtudiant);
 
 router.patch("/:etudiantId", controleursEtudiant.updateEtudiant);
 
+router.post('/inscription', controleursEtudiant.inscription);
+
 module.exports = router;
