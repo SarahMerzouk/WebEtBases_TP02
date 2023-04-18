@@ -53,7 +53,28 @@ const ajouterEtudiant = async (requete, reponse, next) => {
     reponse.status(201).json({etudiant: newStudent.toObject({getter : true}) });
 };
 
-const updateEtudiant = async (requete, reponse, next) => {};
+const updateEtudiant = async (requete, reponse, next) => {
+    const {nom, prenom} = requete.body;
+    const etudiantId = requete.params.etudiantId;
+    let unEtudiant;
+
+    try {
+        unEtudiant = await Etudiant.findById(etudiantId);
+    } catch(err) {
+        return next(new HttpErreur("Échec lors de la récupération de l'étudiant.",500));
+    }
+
+    if (!unEtudiant) {
+        return next(new HttpErreur("id de l'étudiant non trouvé!", 404));
+    }
+
+    unEtudiant.nom = nom;
+    unEtudiant.prenom = prenom;
+
+    await unEtudiant.save();
+  
+    reponse.status(200).json({ etudiant: unEtudiant.toObject({ getters: true }) });
+};
 
 exports.ajouterEtudiant = ajouterEtudiant;
 exports.getEtudiantById = getEtudiantById;
