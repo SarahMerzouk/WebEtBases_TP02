@@ -6,7 +6,22 @@ const HttpErreur = require("../models/http-erreur");
 
 const Etudiant = require("../models/etudiant");
 
-const getEtudiantById = async (requete, reponse, next) => {};
+const getEtudiantById = async (requete, reponse, next) => {
+    let etudiantId = requete.params.etudiantId;
+    let unEtudiant;
+
+    try {
+        unEtudiant = await Etudiant.findById(etudiantId);
+    } catch (err) {
+        return next(new HttpErreur("Erreur lors la récupération de l'étudiant.",500));
+    }
+
+    if (!unEtudiant) {
+        return next(new HttpErreur("Aucun étudiant trouvé pour l'id fourni",404));
+    }
+
+    reponse.json({etudiant: unEtudiant.toObject({getters: true}) });
+};
 
 const ajouterEtudiant = async (requete, reponse, next) => {
     const {nom, prenom, numero} = requete.body;
