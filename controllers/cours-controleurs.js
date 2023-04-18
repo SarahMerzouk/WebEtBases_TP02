@@ -12,21 +12,22 @@ const getCoursById = async (requete, reponse, next) => {
   let unCours;
 
   try {
-      unCours = await Cours.findById(coursId);
+    unCours = await Cours.findById(coursId);
   } catch (err) {
-      return next(new HttpErreur("Erreur lorss la récupération du cours.",500));
+    return next(new HttpErreur("Erreur lorss la récupération du cours.", 500));
   }
 
   if (!unCours) {
-      return next(new HttpErreur("Aucun cours trouvée pour l'id fourni",404));
+    return next(new HttpErreur("Aucun cours trouvée pour l'id fourni", 404));
   }
 
-  reponse.json({professeur: unCours.toObject({getters: true}) });
+  reponse.json({ professeur: unCours.toObject({ getters: true }) });
 };
 
 // me permet d'ajouter un cours dans ma liste et un professeur doit lui être assigné
 const ajouterCours = async (requete, reponse, next) => {
-  const { titre, professeur, discipline, dateDebut, dateFin, session } = requete.body;
+  const { titre, professeur, discipline, dateDebut, dateFin, session } =
+    requete.body;
   let unCoursExiste;
   let unProf;
 
@@ -64,17 +65,47 @@ const ajouterCours = async (requete, reponse, next) => {
   });
 
   try {
-  
     await nouveauCours.save();
     unProf.cours.push(nouveauCours);
     await unProf.save();
-
   } catch (err) {
-    return next(new HttpErreur("Échec lors de l'ajout du cours.",404));
+    return next(new HttpErreur("Échec lors de l'ajout du cours.", 404));
   }
 
   reponse.status(201).json({ cours: nouveauCours.toObject({ getter: true }) });
 };
 
+const updateCours = async (requete, reponse, next) => {
+  const {titre,professeur,discipline,nbMaxEtudiants,dateDebut,dateFin,session,etudiants,} = requete.body;
+  const coursId = requete.params.coursId;
+  let unCours;
+
+  try {
+    unCours = await Cours.findById(coursId);
+  } catch (err) {
+    return next(
+      new HttpErreur("Échec lors de la récupération du cours.", 500)
+    );
+  }
+
+  if (!unCours) {
+    return next(new HttpErreur("id du cours non trouvé!", 404));
+  }
+
+  unCours.titre = titre;
+  unCours.professeur = professeur;
+  unCours.discipline = discipline;
+  unCours.nbMaxEtudiants = nbMaxEtudiants;
+  unCours.dateDebut = dateDebut;
+  unCours.dateFin = dateFin;
+  unCours.session = session;
+  unCours.etudiants = etudiants;
+
+  await unCours.save();
+
+  reponse.status(200).json({ cours: unCours.toObject({ getters: true }) });
+};
+
 exports.ajouterCours = ajouterCours;
 exports.getCoursById = getCoursById;
+exports.updateCours = updateCours;

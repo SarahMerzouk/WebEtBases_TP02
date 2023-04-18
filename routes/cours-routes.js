@@ -7,4 +7,6 @@ router.get("/:coursId", controleursCours.getCoursById);
 
 router.post('/', controleursCours.ajouterCours);
 
+router.patch("/:coursId", controleursCours.updateCours);
+
 module.exports = router;
