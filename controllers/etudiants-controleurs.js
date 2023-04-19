@@ -135,7 +135,39 @@ const inscription = async (requete, reponse, next) => {
   reponse.status(200).json({ message: "L'étudiant est inscrit au cours." });
 };
 
+const supprimerEtudiant = async (requete, reponse, next) => {
+  const etudiantId = requete.params.etudiantId;
+  let unEtudiant;
+
+  // trouver l'étudiant
+  try {
+    unEtudiant = await Etudiant.findById(etudiantId).populate("cours");
+  } catch{
+    return next(new HttpErreur("Erreur lors de la récupération de l'étudiant"), 500);
+  }
+
+  if (!unEtudiant) {
+    return next(new HttpErreur("L'étudiant n'existe pas!"), 404);
+  }
+
+  try {
+    // suppirmer les étudiants dans la liste des étudiants des cours qu'ils suivent
+    for (let i = 0; i < unEtudiant.cours.length; i++) {
+      unEtudiant.cours[i].etudiants.pull(unEtudiant);
+      await unEtudiant.cours[i].save();
+    }
+
+    await unEtudiant.remove();
+  } catch {
+    return next(new HttpErreur("Erreur lors de la suppression de l'élève"), 500);
+  }
+
+  reponse.status(200).json({ message: "L'étudiant est supprimé!" });
+
+};
+
 exports.ajouterEtudiant = ajouterEtudiant;
 exports.getEtudiantById = getEtudiantById;
 exports.updateEtudiant = updateEtudiant;
 exports.inscription = inscription;
+exports.supprimerEtudiant = supprimerEtudiant;
