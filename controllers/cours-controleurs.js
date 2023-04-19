@@ -76,16 +76,15 @@ const ajouterCours = async (requete, reponse, next) => {
 };
 
 const updateCours = async (requete, reponse, next) => {
-  const {titre,discipline,nbMaxEtudiants,dateDebut,dateFin,session} = requete.body;
+  const { titre, discipline, nbMaxEtudiants, dateDebut, dateFin, session } =
+    requete.body;
   const coursId = requete.params.coursId;
   let unCours;
 
   try {
     unCours = await Cours.findById(coursId);
   } catch (err) {
-    return next(
-      new HttpErreur("Échec lors de la récupération du cours.", 500)
-    );
+    return next(new HttpErreur("Échec lors de la récupération du cours.", 500));
   }
 
   if (!unCours) {
@@ -106,15 +105,12 @@ const updateCours = async (requete, reponse, next) => {
 
 const supprimerCours = async (requete, reponse, next) => {
   const coursId = requete.params.coursId;
-  const {titre, professeur} = requete.body;
-
   let unCours;
   let profQuiDonneCours;
-  let etudiantsSuivantLeCours = [];
 
   // vérifier si un cours existe
   try {
-    unCours = Cours.findById(coursId);
+    unCours = await Cours.findById(coursId).populate("etudiants");
   } catch {
     return next(new HttpErreur("Échec lors de la récupération du cours", 500));
   }
@@ -123,43 +119,23 @@ const supprimerCours = async (requete, reponse, next) => {
     return next(new HttpErreur("Impossible de trouver le cours"), 404);
   }
 
-  // trouver le professeur qui donne le cours
-  try {
-    profQuiDonneCours = Professeur.findOne({nomEtPrenom: professeur});
-  } catch {
-    return next(new HttpErreur("Échec lors de la récupération du professeur qui donne le cours"), 500);
-  }
-
-  // trouver les étudiants qui suivent le cours
-  Etudiant.find({cours: {$in: [coursId]}}).exec((err, students) => {
-    if (err) {
-      return next(new HttpErreur("Erreur avec la récupération des étudiants qui suivent le cours"), 500);
-    } else {
-      console.log(students); //Liste d'étudiants qui suivent le cours
-    }
-  });
+  profQuiDonneCours = await Professeur.findOne({nomEtPrenom: unCours.professeur,});
 
   try {
-    const etudiantsSuivantLeCours = Etudiant.find({cours: {$in: [idDuCours]}});
-    console.log(etudiantsSuivantLeCours);
-  } catch (error) {
-    return next(new HttpErreur("Erreur lors de la récupération des étudiants qui suivent le cours"), 500);
-  }
-
-  try {
-    await unCours.remove();
-
     profQuiDonneCours.cours.pull(unCours);
     await profQuiDonneCours.save();
 
-    etudiantsSuivantLeCours.cours.pull(unCours);
-    await etudiantsSuivantLeCours.save();
-    
+    for (let i = 0; i < unCours.etudiants.length; i++) {
+      unCours.etudiants[i].cours.pull(unCours);
+      await unCours.etudiants[i].save();
+    }
+
+    await unCours.remove();
   } catch {
     return next(new HttpErreur("Erreur lors de la suppression du cours"), 500);
   }
 
-  reponse.status(200).json({ message: "Cours supprimée" });
+  reponse.status(200).json({ message: "Le cours est supprimée" });
 };
 
 exports.ajouterCours = ajouterCours;

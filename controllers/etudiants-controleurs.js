@@ -53,7 +53,7 @@ const ajouterEtudiant = async (requete, reponse, next) => {
     return next(new HttpErreur("Erreur lors de l'ajout de l'étudiant.", 422));
   }
 
-  reponse.status(201).json({ etudiant: newStudent.toObject({ getter: true }) });
+  reponse.status(200).json({ message: "L'étudiant est ajouté !" });
 };
 
 const updateEtudiant = async (requete, reponse, next) => {
@@ -132,7 +132,7 @@ const inscription = async (requete, reponse, next) => {
       new HttpErreur("Échec de l'inscription de l'étudiant au cours.", 422)
     );
   }
-  reponse.status(201).json({ etudiant: student.toObject({ getter: true }) });
+  reponse.status(200).json({ message: "L'étudiant est inscrit au cours." });
 };
 
 exports.ajouterEtudiant = ajouterEtudiant;

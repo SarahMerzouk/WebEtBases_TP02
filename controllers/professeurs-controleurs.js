@@ -51,7 +51,7 @@ const ajouterProfesseur = async (requete, reponse, next) => {
         return next(new HttpErreur("Erreur lors de l'ajout du professeur.", 422));
     }
 
-    reponse.status(201).json({professeur: nouveauProfesseur.toObject({getter : true}) });
+    reponse.status(200).json({ message: "Le professeur est ajouté !" });
 };
 
 const updateProfesseur = async (requete, reponse, next) => {
