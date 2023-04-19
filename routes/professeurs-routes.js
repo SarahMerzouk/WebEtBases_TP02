@@ -9,4 +9,8 @@ router.post('/', controleursProfesseur.ajouterProfesseur);
 
 router.patch("/:professeurId", controleursProfesseur.updateProfesseur);
 
+router.delete("/:professeurId", controleursProfesseur.supprimerProfesseur);
+
+router.delete("/:professeurId", controleursProfesseur.supprimerCoursAuProfesseur);
+
 module.exports = router;
