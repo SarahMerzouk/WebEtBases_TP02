@@ -106,7 +106,7 @@ const inscription = async (requete, reponse, next) => {
 
   // vérifier si le cours existe
   try {
-    leCoursPourInscription = await Cours.findOne({ cours: cours });
+    leCoursPourInscription = await Cours.findOne({ titre: cours });
   } catch {
     return next(new HttpErreur("Échec de la vérification du cours.", 500));
   }
