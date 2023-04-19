@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require("uuid");
 const HttpErreur = require("../models/http-erreur");
 
 const Professeur = require("../models/professeur");
+const Cours = require("../models/cours");
 
 const getProfesseurById = async (requete, reponse, next) => {
   let professeurId = requete.params.professeurId;
@@ -102,7 +103,6 @@ const supprimerProfesseur = async (requete, reponse, next) => {
   }
 
   try {
-
     // quand je supprime le prof, plus personne ne donne le cours, alors je supprime le cours.
     for (let i = 0; i < unProf.cours.length; i++) {
       unProf.cours[i].remove();
@@ -119,7 +119,51 @@ const supprimerProfesseur = async (requete, reponse, next) => {
   reponse.status(200).json({ message: "Le professeur est supprimée" });
 };
 
-const supprimerCoursAuProfesseur = async (requete, reponse, next) => {};
+const supprimerCoursAuProfesseur = async (requete, reponse, next) => {
+  const professeurId = requete.params.professeurId;
+  const { cours } = requete.body;
+  let unProf;
+  let cours_a_supprimer;
+
+  // vérifier si le professeur existe
+  try {
+    unProf = await Professeur.findById(professeurId).populate("cours");
+  } catch {
+    return next(
+      new HttpErreur("Échec lors de la récupération du professeur", 500)
+    );
+  }
+
+  if (!unProf) {
+    return next(new HttpErreur("Impossible de trouver le professeur"), 404);
+  }
+
+  // vérifier si le cours existe
+  try {
+    cours_a_supprimer = await Cours.findOne({titre: cours});
+  } catch {
+    return next(new HttpErreur("Erreur lors de la récupération du cours à supprimer"), 500);
+  }
+
+  if (!cours_a_supprimer) {
+    return next(new HttpErreur("Le cours n'existe pas!"), 404);
+  }
+
+  try {
+    // je supprimer le cours dans la liste du prof et le cours en soi, mais le professeur existe encore.
+    unProf.cours.pull(cours_a_supprimer);
+    await unProf.save();
+
+    await cours_a_supprimer.remove();
+    
+  } catch {
+    return next(
+      new HttpErreur("Erreur lors de la suppression du cours pour le professeur!", 500)
+    );
+  }
+
+  reponse.status(200).json({ message: "Le cours du professeur est supprimée" });
+};
 
 exports.ajouterProfesseur = ajouterProfesseur;
 exports.getProfesseurById = getProfesseurById;
